@@ -7,6 +7,7 @@ import (
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/line/line-bot-sdk-go/linebot/httphandler"
+	"github.com/s14t284/news-bot-lambda/service"
 )
 
 // 主要カテゴリのニュース
@@ -21,6 +22,50 @@ const (
 	Science       = "https://news.yahoo.co.jp/pickup/science/rss.xml"       // 科学
 	Local         = "https://news.yahoo.co.jp/pickup/local/rss.xml"         // 地域
 )
+
+func getResponseText(url string) (string, error) {
+	var client service.RssReader = &service.RssClient{}
+	text := ""
+	resp, err := client.Request(url)
+	if err != nil {
+		return "不正な文字列です。", err
+	}
+	for _, news := range resp.Items {
+		text += news.Title + "\n"
+		text += news.Link + "\n"
+	}
+	return text, nil
+}
+
+func getReplyTextWithNewsCategory(message string) string {
+	var url string
+	switch message {
+	case "主要":
+		url = Main
+	case "国内":
+		url = Domestic
+	case "国際":
+		url = World
+	case "経済":
+		url = Economy
+	case "エンタメ":
+		url = Entertainment
+	case "スポーツ":
+		url = Sports
+	case "IT":
+		url = Computer
+	case "科学":
+		url = Science
+	case "地域":
+		url = Local
+	default:
+		url = ""
+	}
+	log.Print(message)
+	log.Print(url)
+	text, _ := getResponseText(url)
+	return text
+}
 
 func getLineHandler() (*httphandler.WebhookHandler, error) {
 	handler, err := httphandler.New(
@@ -41,7 +86,8 @@ func getLineHandler() (*httphandler.WebhookHandler, error) {
 			if event.Type == linebot.EventTypeMessage {
 				switch message := event.Message.(type) {
 				case *linebot.TextMessage:
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
+					text := getReplyTextWithNewsCategory(message.Text)
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
 						log.Print(err)
 					}
 				}
@@ -60,11 +106,4 @@ func main() {
 	if err := http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
 		log.Fatal(err)
 	}
-	// var client service.RssReader = &service.RssClient{}
-	// if resp, err := client.Request(Main); err == nil {
-	// 	for _, news := range resp.Items {
-	// 		fmt.Println(news.Title)
-	// 		fmt.Println(news.Link)
-	// 	}
-	// }
 }
