@@ -3,4 +3,4 @@ build:
     - go
 
 run:
-  web: news-bot-lambda
+  web: every-news-bot

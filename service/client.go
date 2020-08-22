@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"net/http"
 
-	"github.com/s14t284/news-bot-lambda/entities"
+	"github.com/s14t284/every-news-bot/entities"
 )
 
 // RssReader interface

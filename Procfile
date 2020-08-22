@@ -1,1 +1,1 @@
-web: bin/news-bot-lambda
+web: bin/every-news-bot

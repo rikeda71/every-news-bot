@@ -2,6 +2,7 @@ package entities
 
 import "encoding/xml"
 
+// Channel : Rss全体を表す構造体
 type Channel struct {
 	Title       string `xml:"channel>title"`
 	Link        string `xml:"channel>link"`
@@ -11,6 +12,7 @@ type Channel struct {
 	Items       []Item `xml:"channel>item"`
 }
 
+// Item : 1ニュースを表す構造体
 type Item struct {
 	XMLName xml.Name `xml:"item"`
 	Title   string   `xml:"title"`
