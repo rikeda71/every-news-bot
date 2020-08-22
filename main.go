@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/line/line-bot-sdk-go/linebot/httphandler"
-	"github.com/s14t284/news-bot-lambda/service"
 )
 
 // 主要カテゴリのニュース
@@ -54,16 +52,19 @@ func getLineHandler() (*httphandler.WebhookHandler, error) {
 }
 
 func main() {
-	var client service.RssReader = &service.RssClient{}
 	handler, err := getLineHandler()
 	if err != nil {
 		return
 	}
 	http.Handle("/callback", handler)
-	if resp, err := client.Request(Main); err == nil {
-		for _, news := range resp.Items {
-			fmt.Println(news.Title)
-			fmt.Println(news.Link)
-		}
+	if err := http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
+		log.Fatal(err)
 	}
+	// var client service.RssReader = &service.RssClient{}
+	// if resp, err := client.Request(Main); err == nil {
+	// 	for _, news := range resp.Items {
+	// 		fmt.Println(news.Title)
+	// 		fmt.Println(news.Link)
+	// 	}
+	// }
 }
